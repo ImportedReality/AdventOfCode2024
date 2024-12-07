@@ -21,15 +21,29 @@ const (
 	Left
 )
 
-func main() {
-	lab_map := read_input("input.txt")
+var nextDir = map[Direction]Direction{
+	Up:    Right,
+	Right: Down,
+	Down:  Left,
+	Left:  Up,
+}
 
-	path := part1(dupclicate_map(lab_map))
+var dirOffsets = map[Direction]coord{
+	Up:    {0, -1, Up},
+	Right: {1, 0, Right},
+	Down:  {0, 1, Down},
+	Left:  {-1, 0, Left},
+}
+
+func main() {
+	lab_map := readInput("input.txt")
+
+	path := part1(dupclicateMap(lab_map))
 
 	part2(lab_map, path)
 }
 
-func read_input(file string) [][]string {
+func readInput(file string) [][]string {
 	f, err := os.Open(file)
 	if err != nil {
 		panic(err)
@@ -48,7 +62,7 @@ func read_input(file string) [][]string {
 	return lab_map
 }
 
-func dupclicate_map(lab_map [][]string) [][]string {
+func dupclicateMap(lab_map [][]string) [][]string {
 	duplicate := make([][]string, len(lab_map))
 
 	for i := range lab_map {
@@ -58,7 +72,7 @@ func dupclicate_map(lab_map [][]string) [][]string {
 	return duplicate
 }
 
-func print_map(lab_map [][]string) {
+func printMap(lab_map [][]string) {
 	for _, row := range lab_map {
 		for _, col := range row {
 			print(col)
@@ -68,19 +82,19 @@ func print_map(lab_map [][]string) {
 }
 
 func part1(lab_map [][]string) (path []coord) {
-	path = get_path(lab_map)
-	fmt.Printf("Guard visited %d spaces.\n", count_guard_hist(lab_map))
+	path = getPath(lab_map)
+	fmt.Printf("Guard visited %d spaces.\n", countGuardHist(lab_map))
 
 	return
 }
 
 func part2(lab_map [][]string, path []coord) {
-	obstacle_locations := get_obstacle_locations(lab_map, path)
+	obstacle_locations := getObstacleLocations(lab_map, path)
 
 	fmt.Printf("There are %d positions where an obstacle will create a loop\n", obstacle_locations)
 }
 
-func get_guard_loc(lab_map [][]string) coord {
+func getGuardLoc(lab_map [][]string) coord {
 	for y, row := range lab_map {
 		for x, col := range row {
 			if col == "^" || col == ">" || col == "<" || col == "V" {
@@ -91,17 +105,16 @@ func get_guard_loc(lab_map [][]string) coord {
 	return coord{-1, -1, Down}
 }
 
-func get_path(lab_map [][]string) (path []coord) {
-	guard_loc := get_guard_loc(lab_map)
+func getPath(lab_map [][]string) (path []coord) {
+	guard_loc := getGuardLoc(lab_map)
 	path = []coord{guard_loc}
 	// dir := Up
 
-	for !is_leaving_map(lab_map, guard_loc) {
-		if is_blocked(lab_map, guard_loc) {
-			guard_loc.dir = get_new_dir(guard_loc.dir)
-			// dir = get_new_dir(dir)
+	for !isLeavingMap(lab_map, guard_loc) {
+		if isBlocked(lab_map, guard_loc) {
+			guard_loc.dir = nextDir[guard_loc.dir]
 		}
-		new_loc := get_new_coords(guard_loc)
+		new_loc := getNewCoords(guard_loc)
 		path = append(path, new_loc)
 		lab_map[guard_loc.y][guard_loc.x] = "X"
 		guard_loc = new_loc
@@ -112,49 +125,25 @@ func get_path(lab_map [][]string) (path []coord) {
 	return
 }
 
-func is_leaving_map(lab_map [][]string, guard_loc coord) bool {
+func isLeavingMap(lab_map [][]string, guard_loc coord) bool {
 	return guard_loc.dir == Up && guard_loc.y == 0 ||
 		guard_loc.dir == Right && guard_loc.x == len(lab_map[guard_loc.y])-1 ||
 		guard_loc.dir == Down && guard_loc.y == len(lab_map)-1 ||
 		guard_loc.dir == Left && guard_loc.x == 0
 }
 
-func is_blocked(lab_map [][]string, guard_loc coord) bool {
-	new_loc := get_new_coords(guard_loc)
+func isBlocked(lab_map [][]string, guard_loc coord) bool {
+	new_loc := getNewCoords(guard_loc)
 	return lab_map[new_loc.y][new_loc.x] == "#" || lab_map[new_loc.y][new_loc.x] == "O"
 }
 
-func get_new_coords(loc coord) coord {
-	switch loc.dir {
-	case Up:
-		return coord{loc.x, loc.y - 1, loc.dir}
-	case Right:
-		return coord{loc.x + 1, loc.y, loc.dir}
-	case Down:
-		return coord{loc.x, loc.y + 1, loc.dir}
-	case Left:
-		return coord{loc.x - 1, loc.y, loc.dir}
-	default:
-		panic("Undefined direction")
-	}
+func getNewCoords(loc coord) coord {
+	offset := dirOffsets[loc.dir]
+
+	return coord{loc.x + offset.x, loc.y + offset.y, loc.dir}
 }
 
-func get_new_dir(dir Direction) Direction {
-	switch dir {
-	case Up:
-		return Right
-	case Right:
-		return Down
-	case Down:
-		return Left
-	case Left:
-		return Up
-	default:
-		panic("Undefined direction")
-	}
-}
-
-func count_guard_hist(lab_map [][]string) (count int) {
+func countGuardHist(lab_map [][]string) (count int) {
 	count = 0
 	for _, row := range lab_map {
 		for _, col := range row {
@@ -169,19 +158,19 @@ func count_guard_hist(lab_map [][]string) (count int) {
 // Try putting an obstacle in every location along the guards path,
 //
 //	then check if it creates a loop.
-func get_obstacle_locations(lab_map [][]string, path []coord) int {
-	starting_loc := get_guard_loc(lab_map)
+func getObstacleLocations(lab_map [][]string, path []coord) int {
+	starting_loc := getGuardLoc(lab_map)
 	valid_obstacles := []coord{}
 
 	for i, loc := range path {
-		if i == 0 || loc == starting_loc || obstacle_exists(valid_obstacles, loc) {
+		if i == 0 || loc == starting_loc || obstacleExists(valid_obstacles, loc) {
 			continue
 		}
-		tmp_map := dupclicate_map(lab_map)
+		tmp_map := dupclicateMap(lab_map)
 		tmp_map[loc.y][loc.x] = "O"
-		guard_loc := path[i-1]
+		guard_loc := starting_loc
 
-		if has_loop(tmp_map, guard_loc) {
+		if hasLoop(tmp_map, guard_loc) {
 			valid_obstacles = append(valid_obstacles, loc)
 		}
 	}
@@ -189,16 +178,15 @@ func get_obstacle_locations(lab_map [][]string, path []coord) int {
 	return len(valid_obstacles)
 }
 
-func has_loop(lab_map [][]string, guard_loc coord) bool {
+func hasLoop(lab_map [][]string, guard_loc coord) bool {
 	visited := []coord{guard_loc}
 
-	for !is_leaving_map(lab_map, guard_loc) {
-		for is_blocked(lab_map, guard_loc) {
-			guard_loc.dir = get_new_dir(guard_loc.dir)
+	for !isLeavingMap(lab_map, guard_loc) {
+		for isBlocked(lab_map, guard_loc) {
+			guard_loc.dir = nextDir[guard_loc.dir]
 		}
-		new_loc := get_new_coords(guard_loc)
-		if already_visited(visited, new_loc) {
-
+		new_loc := getNewCoords(guard_loc)
+		if alreadyVisited(visited, new_loc) {
 			return true
 		}
 		lab_map[guard_loc.y][guard_loc.x] = "X"
@@ -210,9 +198,9 @@ func has_loop(lab_map [][]string, guard_loc coord) bool {
 	return false
 }
 
-func obstacle_exists(obstacles []coord, obstacle coord) bool {
+func obstacleExists(obstacles []coord, obstacle coord) bool {
 	for _, v := range obstacles {
-		if v == obstacle {
+		if v.x == obstacle.x && v.y == obstacle.y {
 			return true
 		}
 	}
@@ -220,7 +208,7 @@ func obstacle_exists(obstacles []coord, obstacle coord) bool {
 	return false
 }
 
-func already_visited(visited []coord, loc coord) bool {
+func alreadyVisited(visited []coord, loc coord) bool {
 	for _, v := range visited {
 		if v == loc {
 			return true
