@@ -8,13 +8,13 @@ import (
 )
 
 func main() {
-	input := read_input("input.txt")
+	input := readInput("input.txt")
 
 	part1(input)
 	part2(input)
 }
 
-func read_input(file string) [][]string {
+func readInput(file string) [][]string {
 	f, err := os.Open(file)
 	if err != nil {
 		panic(err)
@@ -38,9 +38,9 @@ func part1(input [][]string) {
 	for y, row := range input {
 		for x, v := range row {
 			if v == "X" {
-				count += check_vert(input, x, y)
-				count += check_horiz(input, x, y)
-				count += check_diag(input, x, y)
+				count += checkVert(input, x, y)
+				count += checkHoriz(input, x, y)
+				count += checkDiag(input, x, y)
 			}
 		}
 	}
@@ -52,7 +52,7 @@ func part2(input [][]string) {
 	for y, row := range input {
 		for x, v := range row {
 			if v == "A" {
-				if is_valid_x_mas(input, x, y) {
+				if isValidXMas(input, x, y) {
 					count++
 				}
 			}
@@ -61,20 +61,20 @@ func part2(input [][]string) {
 	fmt.Printf("X-MAS' Found: %d\n", count)
 }
 
-func check_vert(input [][]string, x, y int) int {
+func checkVert(input [][]string, x, y int) int {
 	count := 0
 
 	//Up
 	if y >= 3 {
-		last_char := input[y][x]
+		lastChar := input[y][x]
 		for i := 1; i <= 3; i++ {
-			next_char := input[y-i][x]
-			if is_next(next_char, last_char) {
-				last_char = next_char
+			nextChar := input[y-i][x]
+			if isNext(nextChar, lastChar) {
+				lastChar = nextChar
 			} else {
 				break
 			}
-			if last_char == "S" {
+			if lastChar == "S" {
 				count++
 			}
 		}
@@ -82,15 +82,15 @@ func check_vert(input [][]string, x, y int) int {
 
 	//Down
 	if y <= len(input)-4 {
-		last_char := input[y][x]
+		lastChar := input[y][x]
 		for i := 1; i <= 3; i++ {
-			next_char := input[y+i][x]
-			if is_next(next_char, last_char) {
-				last_char = next_char
+			nextChar := input[y+i][x]
+			if isNext(nextChar, lastChar) {
+				lastChar = nextChar
 			} else {
 				break
 			}
-			if last_char == "S" {
+			if lastChar == "S" {
 				count++
 			}
 		}
@@ -99,20 +99,20 @@ func check_vert(input [][]string, x, y int) int {
 	return count
 }
 
-func check_horiz(input [][]string, x, y int) int {
+func checkHoriz(input [][]string, x, y int) int {
 	count := 0
 
 	//Left
 	if x >= 3 {
-		last_char := input[y][x]
+		lastChar := input[y][x]
 		for i := 1; i <= 3; i++ {
-			next_char := input[y][x-i]
-			if is_next(next_char, last_char) {
-				last_char = next_char
+			nextChar := input[y][x-i]
+			if isNext(nextChar, lastChar) {
+				lastChar = nextChar
 			} else {
 				break
 			}
-			if last_char == "S" {
+			if lastChar == "S" {
 				count++
 			}
 		}
@@ -120,15 +120,15 @@ func check_horiz(input [][]string, x, y int) int {
 
 	//Right
 	if x <= len(input[y])-4 {
-		last_char := input[y][x]
+		lastChar := input[y][x]
 		for i := 1; i <= 3; i++ {
-			next_char := input[y][x+i]
-			if is_next(next_char, last_char) {
-				last_char = next_char
+			nextChar := input[y][x+i]
+			if isNext(nextChar, lastChar) {
+				lastChar = nextChar
 			} else {
 				break
 			}
-			if last_char == "S" {
+			if lastChar == "S" {
 				count++
 			}
 		}
@@ -137,20 +137,20 @@ func check_horiz(input [][]string, x, y int) int {
 	return count
 }
 
-func check_diag(input [][]string, x, y int) int {
+func checkDiag(input [][]string, x, y int) int {
 	count := 0
 
 	//Up-Left
 	if x >= 3 && y >= 3 {
-		last_char := input[y][x]
+		lastChar := input[y][x]
 		for i := 1; i <= 3; i++ {
-			next_char := input[y-i][x-i]
-			if is_next(next_char, last_char) {
-				last_char = next_char
+			nextChar := input[y-i][x-i]
+			if isNext(nextChar, lastChar) {
+				lastChar = nextChar
 			} else {
 				break
 			}
-			if last_char == "S" {
+			if lastChar == "S" {
 				count++
 			}
 		}
@@ -158,15 +158,15 @@ func check_diag(input [][]string, x, y int) int {
 
 	//Up-Right
 	if x <= len(input[y])-4 && y >= 3 {
-		last_char := input[y][x]
+		lastChar := input[y][x]
 		for i := 1; i <= 3; i++ {
-			next_char := input[y-i][x+i]
-			if is_next(next_char, last_char) {
-				last_char = next_char
+			nextChar := input[y-i][x+i]
+			if isNext(nextChar, lastChar) {
+				lastChar = nextChar
 			} else {
 				break
 			}
-			if last_char == "S" {
+			if lastChar == "S" {
 				count++
 			}
 		}
@@ -174,15 +174,15 @@ func check_diag(input [][]string, x, y int) int {
 
 	//Down-Left
 	if x >= 3 && y <= len(input)-4 {
-		last_char := input[y][x]
+		lastChar := input[y][x]
 		for i := 1; i <= 3; i++ {
-			next_char := input[y+i][x-i]
-			if is_next(next_char, last_char) {
-				last_char = next_char
+			nextChar := input[y+i][x-i]
+			if isNext(nextChar, lastChar) {
+				lastChar = nextChar
 			} else {
 				break
 			}
-			if last_char == "S" {
+			if lastChar == "S" {
 				count++
 			}
 		}
@@ -190,15 +190,15 @@ func check_diag(input [][]string, x, y int) int {
 
 	//Down-Right
 	if x <= len(input[y])-4 && y <= len(input)-4 {
-		last_char := input[y][x]
+		lastChar := input[y][x]
 		for i := 1; i <= 3; i++ {
-			next_char := input[y+i][x+i]
-			if is_next(next_char, last_char) {
-				last_char = next_char
+			nextChar := input[y+i][x+i]
+			if isNext(nextChar, lastChar) {
+				lastChar = nextChar
 			} else {
 				break
 			}
-			if last_char == "S" {
+			if lastChar == "S" {
 				count++
 			}
 		}
@@ -207,21 +207,21 @@ func check_diag(input [][]string, x, y int) int {
 	return count
 }
 
-func is_next(next_char string, last_char string) bool {
-	return last_char == "X" && next_char == "M" || last_char == "M" && next_char == "A" || last_char == "A" && next_char == "S"
+func isNext(nextChar string, lastChar string) bool {
+	return lastChar == "X" && nextChar == "M" || lastChar == "M" && nextChar == "A" || lastChar == "A" && nextChar == "S"
 }
 
-func is_valid_x_mas(input [][]string, x, y int) bool {
+func isValidXMas(input [][]string, x, y int) bool {
 	valid := false
 
 	if x > 0 && x < len(input[y])-1 && y > 0 && y < len(input)-1 {
-		top_left := input[y-1][x-1]
-		top_right := input[y-1][x+1]
-		btm_left := input[y+1][x-1]
-		btm_right := input[y+1][x+1]
+		topLeft := input[y-1][x-1]
+		topRight := input[y-1][x+1]
+		btmLeft := input[y+1][x-1]
+		btmRight := input[y+1][x+1]
 
-		valid = (top_left == "M" && btm_right == "S" || top_left == "S" && btm_right == "M") &&
-			(top_right == "M" && btm_left == "S" || top_right == "S" && btm_left == "M")
+		valid = (topLeft == "M" && btmRight == "S" || topLeft == "S" && btmRight == "M") &&
+			(topRight == "M" && btmLeft == "S" || topRight == "S" && btmLeft == "M")
 	}
 
 	return valid

@@ -13,13 +13,13 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	lines := read_lines(f)
+	lines := readLines(f)
 
 	part1(lines)
 	part2(lines)
 }
 
-func read_lines(f *os.File) [][]int {
+func readLines(f *os.File) [][]int {
 	scanner := bufio.NewScanner(f)
 	lines := [][]int{}
 
@@ -43,35 +43,35 @@ func read_lines(f *os.File) [][]int {
 }
 
 func part1(lines [][]int) {
-	safe_count := 0
+	safeCount := 0
 	for _, line := range lines {
-		if line_safe(line) {
-			safe_count++
+		if lineSafe(line) {
+			safeCount++
 		}
 	}
 
-	fmt.Printf("Safe reports: %d\n", safe_count)
+	fmt.Printf("Safe reports: %d\n", safeCount)
 }
 
 func part2(lines [][]int) {
-	safe_count := 0
+	safeCount := 0
 	for _, line := range lines {
-		if line_safe_dampened(line) {
-			safe_count++
+		if lineSafeDampened(line) {
+			safeCount++
 		}
 	}
 
-	fmt.Printf("Safe reports with dampening: %d\n", safe_count)
+	fmt.Printf("Safe reports with dampening: %d\n", safeCount)
 }
 
-func line_safe_dampened(line []int) bool {
-	if line_safe(line) {
+func lineSafeDampened(line []int) bool {
+	if lineSafe(line) {
 		return true
 	}
 
 	for i := range line {
-		sub_line := remove(line, i)
-		if line_safe(sub_line) {
+		subLine := remove(line, i)
+		if lineSafe(subLine) {
 			return true
 		}
 	}
@@ -79,7 +79,7 @@ func line_safe_dampened(line []int) bool {
 	return false
 }
 
-func line_safe(line []int) bool {
+func lineSafe(line []int) bool {
 	// bool representing whether or not to expect increases or decreases
 	inc := false
 	for i, v := range line {

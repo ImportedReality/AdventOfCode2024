@@ -20,7 +20,7 @@ func part1() {
 	}
 	defer f.Close()
 
-	instructions := read_basic_instructions(f)
+	instructions := readBasicInstructions(f)
 
 	sum := 0
 	for _, v := range instructions {
@@ -37,7 +37,7 @@ func part2() {
 	}
 	defer f.Close()
 
-	instructions := read_advanced_instructions(f)
+	instructions := readAdvancedInstructions(f)
 
 	sum := 0
 	for _, v := range instructions {
@@ -47,7 +47,7 @@ func part2() {
 	fmt.Printf("Sum with advanced instructions: %d\n", sum)
 }
 
-func read_basic_instructions(f *os.File) [][]int {
+func readBasicInstructions(f *os.File) [][]int {
 	instructions := [][]int{}
 	scanner := bufio.NewScanner(f)
 	r := regexp.MustCompile("mul\\((\\d+),(\\d+)\\)")
@@ -74,7 +74,7 @@ func read_basic_instructions(f *os.File) [][]int {
 	return instructions
 }
 
-func read_advanced_instructions(f *os.File) [][]int {
+func readAdvancedInstructions(f *os.File) [][]int {
 	instructions := [][]int{}
 	scanner := bufio.NewScanner(f)
 	r := regexp.MustCompile("mul\\((\\d+),(\\d+)\\)|don\\'t\\(\\)|do\\(\\)")
