@@ -13,8 +13,6 @@ type Calibration struct {
 	operands []int
 }
 
-type Equations map[int][][]int
-
 type Operator int
 
 const (
