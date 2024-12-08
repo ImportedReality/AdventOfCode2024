@@ -8,24 +8,37 @@ import (
 	"strings"
 )
 
-type Equations map[int][]int
-
-var Operators = []string{"+", "*"}
-
-func main() {
-	equations := readInput("./input.test.txt")
-
-	part1(equations)
+type Calibration struct {
+	result   int
+	operands []int
 }
 
-func readInput(file string) Equations {
+type Equations map[int][][]int
+
+type Operator int
+
+const (
+	Add Operator = iota
+	Mult
+	Cat
+)
+
+const Ops = 3
+
+func main() {
+	calibrations := readInput("./input.txt")
+
+	solve(calibrations)
+}
+
+func readInput(file string) []Calibration {
 	f, err := os.Open(file)
 	if err != nil {
 		panic(err)
 	}
 	defer f.Close()
 
-	input := make(Equations)
+	input := []Calibration{}
 
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
@@ -39,7 +52,9 @@ func readInput(file string) Equations {
 			operands = append(operands, strToInt(v))
 		}
 
-		input[result] = operands
+		calibration := Calibration{result, operands}
+
+		input = append(input, calibration)
 	}
 
 	return input
@@ -54,12 +69,12 @@ func strToInt(s string) int {
 	return val
 }
 
-func part1(equations Equations) {
+func solve(calibrations []Calibration) {
 	total := 0
 
-	for result, values := range equations {
-		if canBeSolved(result, values) {
-			total += result
+	for _, c := range calibrations {
+		if canBeSolved(c.result, c.operands) {
+			total += c.result
 		}
 	}
 
@@ -67,8 +82,14 @@ func part1(equations Equations) {
 }
 
 func canBeSolved(result int, values []int) bool {
-	subsets := pow(2, len(values)-1)
-	fmt.Printf("%d possible combinations for %d = %d\n", subsets, result, values)
+	subsets := pow(Ops, len(values)-1)
+	permutations := generatePermutations(subsets)
+
+	for _, p := range permutations {
+		if testEquation(result, values, p) {
+			return true
+		}
+	}
 
 	return false
 }
@@ -87,11 +108,71 @@ func pow(n, m int) int {
 	return result
 }
 
-func generatePermutations(n int, results [][]string) (results [][]string) {
-    if n < 2 {
-        return 
-    }
-    for i := 0
+func generatePermutations(n int) (results [][]Operator) {
+	results = [][]Operator{}
 
-    return
+	for i := range n {
+		str := strconv.FormatInt(int64(i), Ops)
+		values := strings.Split(str, "")
+		set := []Operator{}
+		for _, v := range values {
+			set = append(set, Operator(strToInt(v)))
+		}
+		results = append(results, set)
+	}
+
+	results = normalizeOperationsLength(results)
+
+	return
+}
+
+func normalizeOperationsLength(operations [][]Operator) (results [][]Operator) {
+	results = [][]Operator{}
+	max_len := 1
+	for _, v := range operations {
+		if len(v) > max_len {
+			max_len = len(v)
+		}
+	}
+	for _, v := range operations {
+		for len(v) < max_len {
+			v = append([]Operator{Operator(0)}, v...)
+		}
+		results = append(results, v)
+	}
+
+	return
+}
+
+func testEquation(result int, values []int, operations []Operator) bool {
+	a := values[0]
+	b := -1
+	for i := 1; i < len(values); i++ {
+		b = values[i]
+		op := operations[i-1]
+		a = performOperation(a, b, op)
+	}
+
+	return a == result
+}
+
+func performOperation(a, b int, op Operator) int {
+	switch op {
+	case Add:
+		return a + b
+	case Mult:
+		return a * b
+	case Cat:
+		return a*padding(b) + b
+	default:
+		panic("HOW")
+	}
+}
+
+func padding(n int) int {
+	p := 1
+	for p < n {
+		p *= 10
+	}
+	return p
 }
