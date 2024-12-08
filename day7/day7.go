@@ -169,7 +169,7 @@ func performOperation(a, b int, op Operator) int {
 
 func padding(n int) int {
 	p := 1
-	for p < n {
+	for p <= n {
 		p *= 10
 	}
 	return p
