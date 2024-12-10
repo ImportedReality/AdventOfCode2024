@@ -68,9 +68,9 @@ func solve() {
 	trailheads := findTrailheads()
 	var score, rating int
 	for _, trailhead := range trailheads {
-		peaks, trails := findPeaks(&trailhead, &[]*Node{}, &[]*Node{})
+		peaks, trails := findPeaks(&trailhead, &[]*Node{}, 0)
 		score += len(*peaks)
-		rating += len(*trails)
+		rating += trails
 	}
 
 	fmt.Printf("There are %d trailheads with a total score of %d and total rating of %d\n", len(trailheads), score, rating)
@@ -92,12 +92,12 @@ func findTrailheads() []Node {
 	return trailheads
 }
 
-func findPeaks(node *Node, peaks *[]*Node, trails *[]*Node) (*[]*Node, *[]*Node) {
+func findPeaks(node *Node, peaks *[]*Node, trails int) (*[]*Node, int) {
 	if node.elevation == 9 {
 		if !peakVisited(node, peaks) {
 			*peaks = append(*peaks, node)
 		}
-		*trails = append(*trails, node)
+		trails++
 		return peaks, trails
 	}
 	findValidMoves(node)
