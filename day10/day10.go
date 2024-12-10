@@ -52,20 +52,16 @@ func readInput(file string) TopoMap {
 		vals := strings.Split(line, "")
 		row := make([]int, 0)
 		for _, val := range vals {
-			row = append(row, strToInt(val))
+			num, err := strconv.Atoi(val)
+			if err != nil {
+				panic(err)
+			}
+			row = append(row, num)
 		}
 		topoMap = append(topoMap, row)
 	}
 
 	return topoMap
-}
-
-func strToInt(s string) int {
-	val, err := strconv.Atoi(s)
-	if err != nil {
-		panic(err)
-	}
-	return val
 }
 
 func solve() {
