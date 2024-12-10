@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type TopoMap [][]int
@@ -30,8 +31,15 @@ func (n *Node) getBranches() []*Node {
 
 func main() {
 	topoMap = readInput("input.txt")
+	start := time.Now()
 	part1()
+	duration := time.Since(start)
+	fmt.Printf("Part 1 execution time: %v\n", duration)
+	start = time.Now()
 	part2()
+	duration = time.Since(start)
+	fmt.Printf("Part 2 execution time: %v\n", duration)
+
 }
 
 func readInput(file string) TopoMap {
