@@ -32,14 +32,9 @@ func (n *Node) getBranches() []*Node {
 func main() {
 	topoMap = readInput("input.txt")
 	start := time.Now()
-	part1()
+	solve()
 	duration := time.Since(start)
-	fmt.Printf("Part 1 execution time: %v\n", duration)
-	start = time.Now()
-	part2()
-	duration = time.Since(start)
-	fmt.Printf("Part 2 execution time: %v\n", duration)
-
+	fmt.Printf("Execution time: %v\n", duration)
 }
 
 func readInput(file string) TopoMap {
@@ -73,26 +68,16 @@ func strToInt(s string) int {
 	return val
 }
 
-func part1() {
+func solve() {
 	trailheads := findTrailheads()
-	score := 0
+	var score, rating int
 	for _, trailhead := range trailheads {
-		peaks := findPeaks(&trailhead, &[]*Node{}, false)
+		peaks, trails := findPeaks(&trailhead, &[]*Node{}, &[]*Node{})
 		score += len(*peaks)
+		rating += len(*trails)
 	}
 
-	fmt.Printf("There are %d trailheads with a total score of %d\n", len(trailheads), score)
-}
-
-func part2() {
-	trailheads := findTrailheads()
-	rating := 0
-	for _, trailhead := range trailheads {
-		peaks := findPeaks(&trailhead, &[]*Node{}, true)
-		rating += len(*peaks)
-	}
-
-	fmt.Printf("There are %d trailheads with a total rating of %d\n", len(trailheads), rating)
+	fmt.Printf("There are %d trailheads with a total score of %d and total rating of %d\n", len(trailheads), score, rating)
 }
 
 func findTrailheads() []Node {
@@ -111,20 +96,21 @@ func findTrailheads() []Node {
 	return trailheads
 }
 
-func findPeaks(node *Node, peaks *[]*Node, rating bool) *[]*Node {
+func findPeaks(node *Node, peaks *[]*Node, trails *[]*Node) (*[]*Node, *[]*Node) {
 	if node.elevation == 9 {
-		if rating || !peakVisited(node, peaks) {
+		if !peakVisited(node, peaks) {
 			*peaks = append(*peaks, node)
 		}
-		return peaks
+		*trails = append(*trails, node)
+		return peaks, trails
 	}
 	findValidMoves(node)
 	if node.hasBranches() {
 		for _, branch := range node.getBranches() {
-			findPeaks(branch, peaks, rating)
+			findPeaks(branch, peaks, trails)
 		}
 	}
-	return peaks
+	return peaks, trails
 }
 
 func peakVisited(node *Node, peaks *[]*Node) bool {
